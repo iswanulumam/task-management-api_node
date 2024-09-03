@@ -1,12 +1,24 @@
-import express, { Request, Response } from 'express';
+import express from "express";
+import { json } from "body-parser";
+import UserRepository from "./adapter/out/sqlite/UserRepository";
+import UserService from "./application/domain/services/UserService";
+import UserController from "./adapter/in/web/UserController";
 
 const app = express();
 const port = 3000;
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World! :)');
-});
+app.use(json());
+
+const userRepository = new UserRepository();
+const userService = new UserService(userRepository);
+const userController = new UserController(userService);
+
+// ------------------ ENDPOIN HERE ------------------
+
+app.get('/users/:id', (req, res) => userController.getUserById(req, res));
+
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+    console.log(`Server running on port ${port}`);
+})
+
